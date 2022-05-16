@@ -18,6 +18,11 @@ class MessageimplementationTest extends TestCase
     {
         $request = $this->requestFactory->createServerRequest('GET', 'https://www.horde.org/');
         $headers = $request->getHeaders();
-        dd($headers);
+        $name = key($headers);
+        $value = $headers['host'];
+        
+        // this is not possible because storeHeader() is a private method
+        $storedvalue = $request->storeHeader($name, $value);
+        // So: find a way to test this private mehtod, or test all methods that require this function
     }
 }
