@@ -16,13 +16,16 @@ class MessageimplementationTest extends TestCase
 
     public function testSomething()
     {
-        $request = $this->requestFactory->createServerRequest('GET', 'https://www.horde.org/');
+        $request = $this->requestFactory->createServerRequest('GET', 'https://w\rww.horde.org/');
         $headers = $request->getHeaders();
         $name = key($headers);
         $value = $headers['host'];
+        //check if request ist refused
+        // ....
+
         
         // this is not possible because storeHeader() is a private method
-        $storedvalue = $request->storeHeader($name, $value);
+        //$storedvalue = $request->storeHeader($name, $value);
         // So: find a way to test this private mehtod, or test all methods that require this function
     }
 }

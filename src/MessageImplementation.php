@@ -1,5 +1,6 @@
 <?php
 namespace Horde\Http;
+
 use \Horde_String;
 use \Psr\Http\Message\StreamInterface;
 
@@ -9,19 +10,19 @@ use \Psr\Http\Message\StreamInterface;
  * we already have a hierarchy of interfaces. We just copy implementation as
  * a trait
  */
-trait MessageImplementation 
+trait MessageImplementation
 {
 
-    /** 
+    /**
      * Original header names and content
-     * 
+     *
      * @var string[] Keys: Original header names
      */
     private array $headers = [];
 
-    /** 
+    /**
      * Lookup original names from normalized names
-     * 
+     *
      * @var string[] Keys: lowercase header names
      **/
     private array $headerNames = [];
@@ -29,9 +30,9 @@ trait MessageImplementation
     /** @var string */
     private string $protocolVersion = '1.1';
 
-    /** 
+    /**
      * Stream content of the message
-     * 
+     *
      * @var StreamInterface|null The stream
      */
     private $stream;
@@ -222,14 +223,22 @@ trait MessageImplementation
 
     /**
      * Store or replace a header
-     * 
+     *
      * This modifies the copy inplace. Only use it after cloning.
-     * 
+     *
      * @param string $name Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
      */
-    private function storeHeader($name, $value) {
+    private function storeHeader($name, $value)
+    {
         // TODO: Some sanity checks on header name and value
+
+        // Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
+        if (str_contains($value, '\r') || contains($name, '\r')) {
+            // refuse request or response
+            // ...
+        }
+        
         // Value must not be an empty array
         if (!is_array($value)) {
             $value = [$value];
@@ -258,7 +267,8 @@ trait MessageImplementation
      * @return static
      * @throws \InvalidArgumentException for invalid header names or values.
      */
-    public function withAddedHeader($name, $value) {
+    public function withAddedHeader($name, $value)
+    {
         // TODO: Some sanity checks on header name and value
         // Value must not be an empty array
         if (!is_array($value)) {
@@ -266,7 +276,7 @@ trait MessageImplementation
         }
         if (!$this->hasHeader($name)) {
             return $this->withHeader($name, $value);
-        }        
+        }
         $ret = clone($this);
         $headerName = $ret->getHeaderName($name);
         // TODO: What if we have two distinct uc/lc forms of the same header?
