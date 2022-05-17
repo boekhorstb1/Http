@@ -234,9 +234,13 @@ trait MessageImplementation
         // TODO: Some sanity checks on header name and value
 
         // Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
-        if (str_contains($value, '\r') || contains($name, '\r')) {
+
+        //$refuse = [`0x0D`, `0x0A`, null, `0x20`];
+
+        if (str_contains($value, `0x0D`) || str_contains($name, `0x0D`)) {
             // refuse request or response
             // ...
+            dd("riiiight");
         }
         
         // Value must not be an empty array
