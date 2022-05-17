@@ -23,7 +23,7 @@ class MessageimplementationTest extends TestCase
         //check if request ist refused
         // ....
 
-        
+
         // this is not possible because storeHeader() is a private method
         //$storedvalue = $request->storeHeader($name, $value);
         // So: find a way to test this private mehtod, or test all methods that require this function

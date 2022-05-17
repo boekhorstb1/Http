@@ -235,13 +235,46 @@ trait MessageImplementation
 
         // Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
 
-        //$refuse = [`0x0D`, `0x0A`, null, `0x20`];
+        //strcmp
+        //$refuse = ["0x0D", "0x0A", null, "0x20"];
+        // $trimmed = trim($value, "\x00..\0x20");
+        // $trimmed = trim($value, "\x0A..\0x1Z");
+        // dd($trimmed);
 
-        if (str_contains($value, `0x0D`) || str_contains($name, `0x0D`)) {
-            // refuse request or response
-            // ...
-            dd("riiiight");
+        // $asciiRange = range(0, 0x20);
+        // $asciiRange
+        // dd($asciiRange);
+        //dd(chr(13));
+        //$extended = preg_match('/[\x00-\x20]/', $str);
+        
+        if (preg_match('/[\x00-\x20]/', $value)) {
+            # code...
+            dd($value);
         }
+        if (preg_match('/[\x00-\x20]/', $name)) {
+            # code...
+            dd($name);
+        }
+
+        // foreach (range(0, 0x20) as $number) {
+        //     if (str_contains($value, chr($number)) || str_contains($name, chr($number))) {
+        //         // refuse request or response
+        //         // ...
+        //         dd($value);
+        //     }
+        //     // if (str_contains($value, `\n`) || str_contains($name, `\r`)) {
+        //     //     // refuse request or response
+        //     //     // ...
+        //     //     //dd($value);
+        //     // }
+        // }
+        
+
+        // if (str_contains($value, `0x0D`) || str_contains($name, `0x0D`)) {
+        //     // refuse request or response
+        //     // ...
+        //     dd($refuse);
+        // }
         
         // Value must not be an empty array
         if (!is_array($value)) {
