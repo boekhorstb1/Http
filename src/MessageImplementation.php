@@ -234,6 +234,7 @@ trait MessageImplementation
         // TODO: Some sanity checks on header name and value
 
         // Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
+        // NB: with preg_match_all('/[\x00-\x20]/', $value, $output) you can save all regex-hits to an output variable to check if it all worked
 
         if (preg_match('/[\x00-\x20]/', $value)) {
             # REJECT THE REQUEST
