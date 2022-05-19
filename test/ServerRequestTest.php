@@ -5,6 +5,7 @@ use Phpunit\Framework\TestCase;
 use Horde\Http\RequestFactory;
 use Horde\Http\ServerRequest;
 use Horde\Http\Stream;
+use InvalidArgumentException;
 use Horde\Http\Uri;
 use Horde\Http\RequestImplementation;
 use Psr\Http\Message\StreamInterface;
@@ -45,6 +46,36 @@ class ServerRequestTest extends TestCase
 
     // MessageImplementation
 
+    public function testHeaderThrowsExceptionWhenAsciiCharactersTill32InValue()
+    {   // This request should be refused due to invalid ascii characters in $headerValue
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectDeprecationMessageMatches('/1, 5, 10, 32$/');
+        $headerName = 'TestHeader';
+        $headerValue = 'Trestvalue';
+        $headerValue .=  chr(1);
+        $headerValue .=  chr(5);
+        $headerValue .=  chr(10);
+        $headerValue .=  chr(32);
+        $headers = [];
+        $headers[$headerName] = $headerValue;
+        $request = new ServerRequest('GET', '/foo', $headers);
+    }
+
+    public function testHeaderThrowsExceptionWhenAsciiCharactersTill32InName()
+    {   // This request should be refused due to invalid ascii characters in $headerName
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectDeprecationMessageMatches('/1, 5, 10, 32$/');
+        $headerName = 'TestHeader';
+        $headerName .=  chr(1);
+        $headerName .=  chr(5);
+        $headerName .=  chr(10);
+        $headerName .=  chr(32);
+        $headerValue = 'TestValue';
+        $headers = [];
+        $headers[$headerName] = $headerValue;
+        $request = new ServerRequest('GET', '/foo', $headers);
+    }
+
     public function testGetProtocolVersionIsString()
     {
         $version = 2.3;
@@ -74,19 +105,6 @@ class ServerRequestTest extends TestCase
     {
         $request = new ServerRequest('GET', '/foo');
         $this->assertEquals([], $request->getHeader('NotFoundHeaderName'));
-    }
-
-    public function testHeaderDoesNotIncludeAsciiCharactersTill32()
-    {
-        $headerName = 'TestHeader';
-        $headerValue = 'T\restV
-        alue';
-        $headers = [];
-        $headers[$headerName] = $headerValue;
-        $request = new ServerRequest('GET', '/foo', $headers);
-        // This request should be refused
-        $this->assertEquals([$headerValue], $request->getHeader('testheader'));
-        //dd($request->getHeader('TestHeader'));
     }
 
     public function testGetHeaderIsCaseInsensitive()

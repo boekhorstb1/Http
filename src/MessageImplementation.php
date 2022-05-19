@@ -239,12 +239,13 @@ trait MessageImplementation
     {
         if (preg_match_all('/[\x00-\x20]/', $namevalue, $output)) {
             # REJECT THE REQUEST
-            $output = array_unique($output[0]);
             $erronousAsciiCharacters = '';
-            foreach ($output as &$value) {
-                $value = ord($value);
+            $outputarray = [];
+            foreach ($output[0] as $value) {
+                $outputarray[] = ord($value);
             }
-            $erronousAsciiCharacters = implode(', ', $output);
+            $outputarray = array_unique($outputarray, SORT_NUMERIC);
+            $erronousAsciiCharacters = implode(', ', $outputarray);
             throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
         }
     }
@@ -265,9 +266,8 @@ trait MessageImplementation
             $value = [$value];
         }
 
-        // TODO: Some sanity checks on header name and value
-        $this->checkingAsciiErrata($name);
-        
+        // Some sanity checks on header name and value
+        $this->checkingAsciiErrata($name);   
         foreach ($value as $headervalue) {
             $this->checkingAsciiErrata($headervalue);
         }
