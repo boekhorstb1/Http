@@ -1,5 +1,6 @@
 <?php
 namespace Horde\Http\Test;
+
 use Phpunit\Framework\TestCase;
 use Horde\Http\RequestFactory;
 use Horde\Http\ServerRequest;
@@ -75,6 +76,18 @@ class ServerRequestTest extends TestCase
         $this->assertEquals([], $request->getHeader('NotFoundHeaderName'));
     }
 
+    public function testHeaderDoesNotIncludeAsciiCharactersTill32()
+    {
+        $headerName = 'TestHeader';
+        $headerValue = 'T\restV
+        alue';
+        $headers = [];
+        $headers[$headerName] = $headerValue;
+        $request = new ServerRequest('GET', '/foo', $headers);
+        // This request should be refused
+        //dd($request->getHeader('TestHeader'));
+    }
+
     public function testGetHeaderIsCaseInsensitive()
     {
         $headerName = 'TestHeader';
@@ -105,7 +118,6 @@ class ServerRequestTest extends TestCase
     {
         $request = new ServerRequest('GET', '/foo');
         $this->assertFalse($request->hasHeader('TestHeader'));
-
     }
 
     public function testGetHeaderInitialHeaderValues()
@@ -116,7 +128,7 @@ class ServerRequestTest extends TestCase
             'TestHeader3' => ['val3', 'val4', 'val5'],
         ];
         $request = new ServerRequest('GET', '/foo', $headers);
-        foreach($headers as $key => $value) {
+        foreach ($headers as $key => $value) {
             if (!is_array($value)) {
                 $value = [$value];
             }
@@ -129,7 +141,7 @@ class ServerRequestTest extends TestCase
         $request = $this->requestFactory->createServerRequest('GET', '/foo');
         $headerName = 'TestHeader';
         $headerValues = [];
-        foreach (range(1,3) as $i) {
+        foreach (range(1, 3) as $i) {
             $val = "val$i";
             $request = $request->withAddedHeader($headerName, $val);
             $headerValues[] = $val;
