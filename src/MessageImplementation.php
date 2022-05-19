@@ -222,7 +222,7 @@ trait MessageImplementation
         return $ret;
     }
 
-    /** Adding checks following this errata: https://github.com/php-fig/fig-standards/pull/1274/files
+    /** Adding checks following these errata: https://github.com/php-fig/fig-standards/pull/1274/files
      *
      * A minimally viable validator is expected to reject header names containing the
      * following characters:
