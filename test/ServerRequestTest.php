@@ -85,6 +85,7 @@ class ServerRequestTest extends TestCase
         $headers[$headerName] = $headerValue;
         $request = new ServerRequest('GET', '/foo', $headers);
         // This request should be refused
+        $this->assertEquals([$headerValue], $request->getHeader('testheader'));
         //dd($request->getHeader('TestHeader'));
     }
 

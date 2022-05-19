@@ -1,6 +1,7 @@
 <?php
 namespace Horde\Http;
 
+use InvalidArgumentException;
 use \Horde_String;
 use \Psr\Http\Message\StreamInterface;
 
@@ -231,27 +232,56 @@ trait MessageImplementation
      */
     private function storeHeader($name, $value)
     {
-        // TODO: Some sanity checks on header name and value
-
-        // Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
-        // NB: with preg_match_all('/[\x00-\x20]/', $value, $output) you can save all regex-hits to an output variable to check if it all worked
-
-        if (preg_match('/[\x00-\x20]/', $value)) {
-            # REJECT THE REQUEST
-            dd($value);
-        }
-        if (preg_match('/[\x00-\x20]/', $name)) {
-            # REJECT THE REQUEST
-            dd($value);
-        }
-  
-
-       
-        
         // Value must not be an empty array
         if (!is_array($value)) {
             $value = [$value];
         }
+
+        // TODO: Some sanity checks on header name and value
+
+        /** Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
+         *
+         * A minimally viable validator is expected to reject header names containing the
+         * following characters:
+         *
+         * - NUL (0x00)
+         * - `\r` (0x0D)
+         * - `\n` (0x0A)
+         * - Any character less than or equal to 0x20.
+         *
+         * @throws \InvalidArgumentException When the body is not valid.
+         */
+
+        
+
+        if (preg_match_all('/[\x00-\x20]/', $name, $output)) {
+            # REJECT THE REQUEST
+            $output = array_unique($output[0]);
+            $erronousAsciiCharacters = '';
+            foreach ($output as &$value) {
+                $value = ord($value);
+            }
+            $erronousAsciiCharacters = implode(', ', $output);
+            throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+        }
+
+        foreach ($value as $headervalue) {
+            if (preg_match_all('/[\x00-\x20]/', $headervalue, $output)) {
+                # REJECT THE REQUEST
+                $output = array_unique($output[0]);
+                $erronousAsciiCharacters = '';
+                foreach ($output as &$value) {
+                    $value = ord($value);
+                }
+                $erronousAsciiCharacters = implode(', ', $output);
+                throw new InvalidArgumentException('Invalid Characters found in header values. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+            }
+        }
+        
+        
+        
+        
+        
         // Avoid glitches, delete and create header instead of writing into it
         if ($this->hasHeader($name)) {
             unset($this->headers[$this->getHeaderName($name)]);
