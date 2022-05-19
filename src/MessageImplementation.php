@@ -222,6 +222,34 @@ trait MessageImplementation
         return $ret;
     }
 
+    /** Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
+     *
+     * A minimally viable validator is expected to reject header names containing the
+     * following characters:
+     *
+     * - NUL (0x00)
+     * - `\r` (0x0D)
+     * - `\n` (0x0A)
+     * - Any character less than or equal to 0x20.
+     *
+     * @param string $namevalue Header name or value(s).
+     * @throws \InvalidArgumentException When the body is not valid.
+     */
+    public function checkingAsciiErrata($namevalue)
+    {
+        if (preg_match_all('/[\x00-\x20]/', $namevalue, $output)) {
+            # REJECT THE REQUEST
+            $output = array_unique($output[0]);
+            $erronousAsciiCharacters = '';
+            foreach ($output as &$value) {
+                $value = ord($value);
+            }
+            $erronousAsciiCharacters = implode(', ', $output);
+            throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+        }
+    }
+
+    
     /**
      * Store or replace a header
      *
@@ -238,49 +266,11 @@ trait MessageImplementation
         }
 
         // TODO: Some sanity checks on header name and value
-
-        /** Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
-         *
-         * A minimally viable validator is expected to reject header names containing the
-         * following characters:
-         *
-         * - NUL (0x00)
-         * - `\r` (0x0D)
-         * - `\n` (0x0A)
-         * - Any character less than or equal to 0x20.
-         *
-         * @throws \InvalidArgumentException When the body is not valid.
-         */
-
+        $this->checkingAsciiErrata($name);
         
-
-        if (preg_match_all('/[\x00-\x20]/', $name, $output)) {
-            # REJECT THE REQUEST
-            $output = array_unique($output[0]);
-            $erronousAsciiCharacters = '';
-            foreach ($output as &$value) {
-                $value = ord($value);
-            }
-            $erronousAsciiCharacters = implode(', ', $output);
-            throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
-        }
-
         foreach ($value as $headervalue) {
-            if (preg_match_all('/[\x00-\x20]/', $headervalue, $output)) {
-                # REJECT THE REQUEST
-                $output = array_unique($output[0]);
-                $erronousAsciiCharacters = '';
-                foreach ($output as &$value) {
-                    $value = ord($value);
-                }
-                $erronousAsciiCharacters = implode(', ', $output);
-                throw new InvalidArgumentException('Invalid Characters found in header values. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
-            }
+            $this->checkingAsciiErrata($headervalue);
         }
-        
-        
-        
-        
         
         // Avoid glitches, delete and create header instead of writing into it
         if ($this->hasHeader($name)) {
