@@ -222,7 +222,7 @@ trait MessageImplementation
         return $ret;
     }
 
-    /** Adding checks following this errata: 1ttps://github.com/php-fig/fig-standards/pull/1274/files
+    /** Adding checks following this errata: https://github.com/php-fig/fig-standards/pull/1274/files
      *
      * A minimally viable validator is expected to reject header names containing the
      * following characters:
@@ -235,14 +235,14 @@ trait MessageImplementation
      * @param string $namevalue Header name or value(s).
      * @throws \InvalidArgumentException When the body is not valid.
      */
-    public function checkingAsciiErrata($namevalue)
+    public function checkHeaderForInvalidAsciiChars($namevalue)
     {
         if (preg_match_all('/[\x00-\x20]/', $namevalue, $output)) {
             # REJECT THE REQUEST
             $erronousAsciiCharacters = '';
             $outputarray = [];
             foreach ($output[0] as $value) {
-                $outputarray[] = ord($value);
+                $outputarray[] = bin2hex($value);
             }
             $outputarray = array_unique($outputarray, SORT_NUMERIC);
             $erronousAsciiCharacters = implode(', ', $outputarray);
@@ -267,9 +267,9 @@ trait MessageImplementation
         }
 
         // Some sanity checks on header name and value
-        $this->checkingAsciiErrata($name);   
+        $this->checkHeaderForInvalidAsciiChars($name);   
         foreach ($value as $headervalue) {
-            $this->checkingAsciiErrata($headervalue);
+            $this->checkHeaderForInvalidAsciiChars($headervalue);
         }
         
         // Avoid glitches, delete and create header instead of writing into it
