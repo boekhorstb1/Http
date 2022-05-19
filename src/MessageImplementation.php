@@ -240,12 +240,12 @@ trait MessageImplementation
         if (preg_match_all('/[\x00-\x20]/', $namevalue, $output)) {
             # REJECT THE REQUEST
             $erronousAsciiCharacters = '';
-            $outputarray = [];
+            $outputArray = [];
             foreach ($output[0] as $value) {
-                $outputarray[] = bin2hex($value);
+                $outputArray[] = bin2hex($value);
             }
-            $outputarray = array_unique($outputarray, SORT_NUMERIC);
-            $erronousAsciiCharacters = implode(', ', $outputarray);
+            $outputArray = array_unique($outputArray, SORT_NUMERIC);
+            $erronousAsciiCharacters = implode(', ', $outputArray);
             throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
         }
     }
