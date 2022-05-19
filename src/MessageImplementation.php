@@ -235,9 +235,9 @@ trait MessageImplementation
      * @param string $namevalue Header name or value(s).
      * @throws \InvalidArgumentException When the body is not valid.
      */
-    public function checkHeaderForInvalidAsciiChars($namevalue)
+    public function checkHeaderForInvalidAsciiChars($nameOrValue)
     {
-        if (preg_match_all('/[\x00-\x20]/', $namevalue, $output)) {
+        if (preg_match_all('/[\x00-\x20]/', $nameOrValue, $output)) {
             # REJECT THE REQUEST
             $erronousAsciiCharacters = '';
             $outputArray = [];
@@ -246,7 +246,7 @@ trait MessageImplementation
             }
             $outputArray = array_unique($outputArray, SORT_NUMERIC);
             $erronousAsciiCharacters = implode(', ', $outputArray);
-            throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+            throw new InvalidArgumentException('Invalid Characters found in header name and/or value. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
         }
     }
 
