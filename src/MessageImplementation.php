@@ -241,7 +241,7 @@ trait MessageImplementation
      *
      * @param string $name the headers name.
      * @param string[] $value the headers value(s).
-     * @throws \InvalidArgumentException When the body is not valid.
+     * @throws InvalidArgumentException When the body is not valid.
      */
     public function checkHeaderForInvalidAsciiChars($name, $value)
     {
