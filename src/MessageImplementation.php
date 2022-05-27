@@ -251,16 +251,20 @@ trait MessageImplementation
         }
 
         // Checking headers value
-        if (isset($value) && preg_match_all('/[\x00-\x0A]/', $value, $output)) {
-            # REJECT THE REQUEST
-            $erronousAsciiCharacters = '';
-            $outputArray = [];
-            foreach ($output[0] as $value) {
-                $outputArray[] = bin2hex($value);
+        if (isset($value)) {
+            foreach ($value as $headervalue) {
+                if (preg_match_all('/[\x00-\x0A]/', $headervalue, $output)) {
+                    # REJECT THE REQUEST
+                    $erronousAsciiCharacters = '';
+                    $outputArray = [];
+                    foreach ($output[0] as $value) {
+                        $outputArray[] = bin2hex($value);
+                    }
+                    $outputArray = array_unique($outputArray, SORT_NUMERIC);
+                    $erronousAsciiCharacters = implode(', ', $outputArray);
+                    throw new InvalidArgumentException('Invalid Characters found in header value. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+                }
             }
-            $outputArray = array_unique($outputArray, SORT_NUMERIC);
-            $erronousAsciiCharacters = implode(', ', $outputArray);
-            throw new InvalidArgumentException('Invalid Characters found in header value. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
         }
     }
 
@@ -281,10 +285,8 @@ trait MessageImplementation
         }
 
         // Some sanity checks on header name and value
-        $this->checkHeaderForInvalidAsciiChars($name);
-        foreach ($value as $headervalue) {
-            $this->checkHeaderForInvalidAsciiChars($headervalue);
-        }
+        $this->checkHeaderForInvalidAsciiChars($name, $value);
+        
         
         // Avoid glitches, delete and create header instead of writing into it
         if ($this->hasHeader($name)) {
