@@ -224,7 +224,7 @@ trait MessageImplementation
 
     /** Adding checks following these errata: https://github.com/php-fig/fig-standards/pull/1274/files
      *
-     * A minimally viable validator is expected to reject header names containing the
+     * A minimally viable validator should reject header names containing the
      * following characters:
      *
      * - NUL (0x00)
@@ -232,7 +232,15 @@ trait MessageImplementation
      * - `\n` (0x0A)
      * - Any character less than or equal to 0x20.
      *
-     * @param string $namevalue Header name or value(s).
+     * Concerning Header values the following characters should lead to a rejection:
+     *
+     * * - NUL (0x00)
+     * - `\r` (0x0D)
+     * - `\n` (0x0A)
+     *
+     *
+     * @param string $name the headers name.
+     * @param string[] $value the headers value(s).
      * @throws \InvalidArgumentException When the body is not valid.
      */
     public function checkHeaderForInvalidAsciiChars($name, $value)
