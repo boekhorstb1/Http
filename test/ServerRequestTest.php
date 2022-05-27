@@ -49,13 +49,12 @@ class ServerRequestTest extends TestCase
     public function testHeaderThrowsExceptionWhenAsciiCharactersTill32InValue()
     {   // This request should be refused due to invalid ascii characters in $headerValue
         $this->expectException(InvalidArgumentException::class);
-        $this->expectDeprecationMessageMatches('/01, 05, 0a, 20$/');
+        $this->expectDeprecationMessageMatches('/01, 05, 0a$/');
         $headerName = 'TestHeader';
         $headerValue = 'Trestvalue';
         $headerValue .=  chr(0x01);
         $headerValue .=  chr(0x05);
         $headerValue .=  chr(0x0A);
-        $headerValue .=  chr(0x20);
         $headers = [];
         $headers[$headerName] = $headerValue;
         $request = new ServerRequest('GET', '/foo', $headers);
