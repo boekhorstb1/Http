@@ -237,15 +237,20 @@ trait MessageImplementation
      */
     public function checkHeaderForInvalidAsciiChars($name, $value)
     {
-        // Checking headers name
-        if (isset($name) && preg_match_all('/[\x00-\x20]/', $name, $output)) {
-            # REJECT THE REQUEST
+        $checking = function ($output) {
             $erronousAsciiCharacters = '';
             $outputArray = [];
             foreach ($output[0] as $value) {
                 $outputArray[] = bin2hex($value);
             }
             $erronousAsciiCharacters = implode(', ', $outputArray);
+            return $erronousAsciiCharacters;
+        };
+
+        // Checking headers name
+        if (isset($name) && preg_match_all('/[\x00-\x20]/', $name, $output)) {
+            // reject request
+            $erronousAsciiCharacters = $checking($output);
             throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
         }
 
@@ -253,13 +258,8 @@ trait MessageImplementation
         if (isset($value)) {
             foreach ($value as $headervalue) {
                 if (preg_match_all('/[\x00\x0D\x0A]/', $headervalue, $output)) {
-                    # REJECT THE REQUEST
-                    $erronousAsciiCharacters = '';
-                    $outputArray = [];
-                    foreach ($output[0] as $value) {
-                        $outputArray[] = bin2hex($value);
-                    }
-                    $erronousAsciiCharacters = implode(', ', $outputArray);
+                    // reject request
+                    $erronousAsciiCharacters = $checking($output);
                     throw new InvalidArgumentException('Invalid Characters found in header value. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
                 }
             }
