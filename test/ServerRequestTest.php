@@ -45,6 +45,22 @@ class ServerRequestTest extends TestCase
     }
 
     // MessageImplementation
+    public function testHeaderDoesNotThrowErrorsForAllowedCharactersInValue()
+    {
+        $headerName = 'Testheadersssbla';
+        $headerValue = 'Trestvalue';
+        $headerValue .=  chr(0x20);
+        $headerValue .=  chr(0x05);
+        $headerValue .=  chr(0x04);
+        $headerValue .=  chr(0x03);
+        $headerValue .=  chr(0x1A);
+        $headerValue .=  chr(0x1D);
+        $headers = [];
+        $headers[$headerName] = $headerValue;
+        $request = new ServerRequest('GET', '/foo', $headers);
+        $this->assertEquals([$headerValue], $request->getHeader($headerName));
+    }
+
     public function testHeaderThrowsExceptionWhen0a0d00InValue()
     {
         $this->expectException(InvalidArgumentException::class);
