@@ -16,15 +16,31 @@ class ResponseTest extends TestCase
     public function testStoreHeaderWithWrongHeaderValues()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectDeprecationMessageMatches('/01, 05, 0a$/');
-        $headerName = 'TestHeader';
+        $this->expectDeprecationMessageMatches('/00, 0d, 0a$/');
+        $headerName = 'Wierdtest';
         $headerValue = 'Trestvalue';
-        $headerValue .=  chr(0x01);
-        $headerValue .=  chr(0x05);
+        $headerValue .=  chr(0x00);
+        $headerValue .=  chr(0x0D);
         $headerValue .=  chr(0x0A);
         $headers = [];
         $headers[$headerName] = $headerValue;
         $response = new Response(404, $headers, null, '1.1');
+    }
+
+    public function testHeaderThrowsExceptionWithWrongHeaderNames()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectDeprecationMessageMatches('/01, 05, 0a, 00, 20$/');
+        $headerName = 'Testheadersssbla';
+        $headerValue = 'Trestvalue';
+        $headerName =  chr(0x01);
+        $headerName .=  chr(0x05);
+        $headerName .=  chr(0x0A);
+        $headerName .=  chr(0x00);
+        $headerName .=  chr(0x20);
+        $headers = [];
+        $headers[$headerName] = $headerValue;
+        $request = new Response(404, $headers, null, '1.1');
     }
 
     public function testDefaultStatusIs200()
