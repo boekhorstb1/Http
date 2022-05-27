@@ -235,9 +235,10 @@ trait MessageImplementation
      * @param string $namevalue Header name or value(s).
      * @throws \InvalidArgumentException When the body is not valid.
      */
-    public function checkHeaderForInvalidAsciiChars($nameOrValue)
+    public function checkHeaderForInvalidAsciiChars($name, $value)
     {
-        if (preg_match_all('/[\x00-\x20]/', $nameOrValue, $output)) {
+        // Checking headers name
+        if (isset($name) && preg_match_all('/[\x00-\x20]/', $name, $output)) {
             # REJECT THE REQUEST
             $erronousAsciiCharacters = '';
             $outputArray = [];
@@ -246,7 +247,20 @@ trait MessageImplementation
             }
             $outputArray = array_unique($outputArray, SORT_NUMERIC);
             $erronousAsciiCharacters = implode(', ', $outputArray);
-            throw new InvalidArgumentException('Invalid Characters found in header name and/or value. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+            throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+        }
+
+        // Checking headers value
+        if (isset($value) && preg_match_all('/[\x00-\x0A]/', $value, $output)) {
+            # REJECT THE REQUEST
+            $erronousAsciiCharacters = '';
+            $outputArray = [];
+            foreach ($output[0] as $value) {
+                $outputArray[] = bin2hex($value);
+            }
+            $outputArray = array_unique($outputArray, SORT_NUMERIC);
+            $erronousAsciiCharacters = implode(', ', $outputArray);
+            throw new InvalidArgumentException('Invalid Characters found in header value. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
         }
     }
 
@@ -267,7 +281,7 @@ trait MessageImplementation
         }
 
         // Some sanity checks on header name and value
-        $this->checkHeaderForInvalidAsciiChars($name);   
+        $this->checkHeaderForInvalidAsciiChars($name);
         foreach ($value as $headervalue) {
             $this->checkHeaderForInvalidAsciiChars($headervalue);
         }
