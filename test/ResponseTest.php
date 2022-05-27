@@ -16,16 +16,15 @@ class ResponseTest extends TestCase
     public function testStoreHeaderWithWrongHeaderValues()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectDeprecationMessageMatches('/01, 05, 0a, 20$/');
+        $this->expectDeprecationMessageMatches('/01, 05, 0a$/');
         $headerName = 'TestHeader';
         $headerValue = 'Trestvalue';
         $headerValue .=  chr(0x01);
         $headerValue .=  chr(0x05);
         $headerValue .=  chr(0x0A);
-        $headerValue .=  chr(0x20);
         $headers = [];
         $headers[$headerName] = $headerValue;
-        $response = new Response(404, $headers, null,'1.1');
+        $response = new Response(404, $headers, null, '1.1');
     }
 
     public function testDefaultStatusIs200()
@@ -40,7 +39,6 @@ class ResponseTest extends TestCase
         $response = new Response();
         $this -> expectException(InvalidArgumentException::class);
         $response->withStatus(999);
-
     }
 
     public function testStatusChangesAccordingly()
@@ -52,14 +50,14 @@ class ResponseTest extends TestCase
 
     public function testReasonPhraseIsDefault()
     {
-        $response = new Response(418,[],null,'1.1');
+        $response = new Response(418, [], null, '1.1');
         $responsePhrase = $response->getReasonPhrase();
         $this -> assertSame("I'm a teapot", $responsePhrase);
     }
 
     public function testReasonPhraseIsPrioritised()
     {
-        $response = new Response(418,[],null,'1.1',"I'm a coffeepot");
+        $response = new Response(418, [], null, '1.1', "I'm a coffeepot");
         $responsePhrase = $response->getReasonPhrase();
         $this -> assertSame("I'm a coffeepot", $responsePhrase);
     }

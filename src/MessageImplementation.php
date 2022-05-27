@@ -287,7 +287,6 @@ trait MessageImplementation
         // Some sanity checks on header name and value
         $this->checkHeaderForInvalidAsciiChars($name, $value);
         
-        
         // Avoid glitches, delete and create header instead of writing into it
         if ($this->hasHeader($name)) {
             unset($this->headers[$this->getHeaderName($name)]);
