@@ -243,10 +243,9 @@ trait MessageImplementation
      * @param string[] $value the headers value(s).
      * @throws InvalidArgumentException When the body is not valid.
      */
-    public function checkHeaderForInvalidAsciiChars($name, $value)
+    public function checkHeaderForInvalidAsciiChars(string $name, array $value)
     {
         $checking = function ($output) {
-            $erronousAsciiCharacters = '';
             $outputArray = [];
             foreach ($output[0] as $value) {
                 $outputArray[] = bin2hex($value);
@@ -256,20 +255,18 @@ trait MessageImplementation
         };
 
         // Checking headers name
-        if (isset($name) && preg_match_all('/[\x00-\x20]/', $name, $output)) {
+        if (preg_match_all('/[\x00-\x20]/', $name, $output)) {
             // reject request
             $erronousAsciiCharacters = $checking($output);
-            throw new InvalidArgumentException('Invalid Characters found in header name. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
+            throw new InvalidArgumentException('Found the following invalid ASCII character-codes in header name: '.$erronousAsciiCharacters);
         }
 
         // Checking headers value
-        if (isset($value)) {
-            foreach ($value as $headervalue) {
-                if (preg_match_all('/[\x00\x0D\x0A]/', $headervalue, $output)) {
-                    // reject request
-                    $erronousAsciiCharacters = $checking($output);
-                    throw new InvalidArgumentException('Invalid Characters found in header value. Please make sure to add headers correctly. Following invalid ASCII character-codes are found: '.$erronousAsciiCharacters);
-                }
+        foreach ($value as $headervalue) {
+            if (preg_match_all('/[\x00\x0D\x0A]/', $headervalue, $output)) {
+                // reject request
+                $erronousAsciiCharacters = $checking($output);
+                throw new InvalidArgumentException('Found the following invalid ASCII character-codes in header name: '.$erronousAsciiCharacters);
             }
         }
     }
