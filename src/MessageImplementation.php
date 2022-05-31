@@ -245,7 +245,7 @@ trait MessageImplementation
      */
     public function checkHeaderForInvalidAsciiChars(string $name, array $value)
     {
-        $checking = function ($output) {
+        $getWrongCharacters = function ($output) {
             $outputArray = [];
             foreach ($output[0] as $value) {
                 $outputArray[] = bin2hex($value);
@@ -257,7 +257,7 @@ trait MessageImplementation
         // Checking headers name
         if (preg_match_all('/[\x00-\x20]/', $name, $output)) {
             // reject request
-            $erronousAsciiCharacters = $checking($output);
+            $erronousAsciiCharacters = $getWrongCharacters($output);
             throw new InvalidArgumentException('Found the following invalid ASCII character-codes in header name: '.$erronousAsciiCharacters);
         }
 
@@ -265,7 +265,7 @@ trait MessageImplementation
         foreach ($value as $headervalue) {
             if (preg_match_all('/[\x00\x0D\x0A]/', $headervalue, $output)) {
                 // reject request
-                $erronousAsciiCharacters = $checking($output);
+                $erronousAsciiCharacters = $getWrongCharacters($output);
                 throw new InvalidArgumentException('Found the following invalid ASCII character-codes in header name: '.$erronousAsciiCharacters);
             }
         }
