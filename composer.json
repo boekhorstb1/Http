@@ -36,8 +36,7 @@
         "horde/test": "^3 || dev-FRAMEWORK_6_0"
     },
     "suggest": {
-        "ext-curl": "*",
-        "ext-http": "*"
+        "ext-curl": "*"
     },
     "autoload": {
         "psr-0": {
